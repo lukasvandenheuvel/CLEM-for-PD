@@ -21,38 +21,30 @@ class LifReader():
         self.layout = pd.read_excel(layout_path, header=None).to_numpy()
         self.tile_grid = utils.layout_to_grid(self.layout)
 
-    def save_zstack(self,f,output_path,t=0,channels=[0,1,2,3,4],tile_nr=0):
+    def save_zstack(self,f,output_path,t=0,channels=[0,1,2,3,4]):
         img = self.lif.get_image(f)
         # Make folder to save tiles
-        # tiles_path = os.path.join(output_path, 'tiles')
-        # if not(os.path.exists(tiles_path)):
-        #     os.mkdir(tiles_path)
-        #     print('Made new tile folder')
+        tiles_path = os.path.join(output_path, img.name)
+        if not(os.path.exists(tiles_path)):
+             os.mkdir(tiles_path)
+             print('Made new tile folder')
 
-        for ch in channels:
-            # If image is a tile scan, obtain the m and c
-            if (img.dims.m > 1): # image is a scan
-                assert(not(self.tile_grid is None)), 'First run read_layout before you can save zstack for this image!'
-                row,col = [arr[0] for arr in np.where(self.tile_grid == tile_nr)]
-                m,c = utils.find_m_and_c(img,self.tile_grid,row=row,col=col,ch=ch)
-            else: # image is not a tilescan
-                m = 0
-                c = ch
-        
-            print(f'Starting channel {ch}')
-            # Make folder to save tiles
-            channel_path = os.path.join(output_path, f'ch{ch}_s{tile_nr}_zstack')
-            if not (os.path.exists(channel_path)):
-                os.mkdir(channel_path)
-                print('Made new channels folder')
-            else:
-                print('Overwriting existing tiles')
-
-            for z in range(img.dims.z):
-                img_name = f'ch{int(ch)}_s{int(tile_nr)}_z{int(z)}.tif'
-                frame = np.array(img.get_frame(z=z,t=t,c=c,m=m))
-                io.imsave(os.path.join(channel_path,f'{img_name}'), frame)
-                print(f'Saved img {img_name}')
+        for m in range(img.dims.m):
+            print(f'Starting tile {m+1} out of {img.dims.m}...')
+            for ch in channels:
+                # If image is a tile scan, obtain the m and c
+                # if (img.dims.m > 1): # image is a scan
+                #     assert(not(self.tile_grid is None)), 'First run read_layout before you can save zstack for this image!'
+                #     row,col = [arr[0] for arr in np.where(self.tile_grid == tile_nr)]
+                #     m,c = utils.find_m_and_c(img,self.tile_grid,row=row,col=col,ch=ch)
+                # else: # image is not a tilescan
+            
+                print(f'Starting channel {ch+1} out of {len(channels)}...')
+                for z in range(img.dims.z):
+                    img_name = f'm{m:03d}_ch{ch:02d}_z{z:03d}.tif'
+                    frame = np.array(img.get_frame(z=z,t=t,c=ch,m=m))
+                    io.imsave(os.path.join(tiles_path,f'{img_name}'), frame, check_contrast=False)
+                    print(f'Saved img {img_name}')
 
     def save_tiles_for_stitching(self,f,output_path,z='max',t=0,channels=[0,1,2,3,4],percentage_overlap=0.1):
 

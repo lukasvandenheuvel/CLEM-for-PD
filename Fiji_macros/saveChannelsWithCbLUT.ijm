@@ -1,5 +1,5 @@
-path = "/Users/lukasvandenheuvel/Documents/EPFL/MA4/PDM/Data/LH02_A03/block2/cycle14_ROI1";
-file = "warp_thunder_s001_z53_to_warp_lmEM_to_hmEM.tif";
+path = "//Volumes/LBEM/THUNDER/lukas/MasterThesis/Data_processed/LH02_Amanda_A02_b1/Block01/R17/EM/cycle13";
+file = "warp_thunder_s017_z25_to_hmEM_small.tif";
 
 close("*");
 s = File.separator();
